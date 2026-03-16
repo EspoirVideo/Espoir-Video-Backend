@@ -1,7 +1,7 @@
 const { PrismaClient } = require('@prisma/client');
 const jwt = require('jsonwebtoken');
 const redisClient = require('../config/redis');
-const { sendSms } = require('../services/sms.service');
+const { sendOTP } = require('../services/sms.service');
 const AppError = require('../utils/AppError');
 const env = require('../config/env');
 
@@ -21,9 +21,8 @@ const sendOtp = async (req, res, next) => {
     // Stockage dans Redis avec expiration stricte a 300 secondes (5 minutes)
     await redisClient.set(`otp:${phone}`, otp, 'EX', 300);
 
-    // Envoi du message
-    const message = `ESPOIR VIDEO: Votre code de verification est ${otp}. Il est valide pendant 5 minutes.`;
-    await sendSms(phone, message);
+    // Envoi du code via le service
+    await sendOTP(phone, otp);
 
     res.status(200).json({
       status: 'success',

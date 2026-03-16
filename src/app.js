@@ -18,11 +18,11 @@ const app = express();
 // 1. Middlewares Globaux
 app.use(helmet());
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' ? process.env.FRONTEND_URL : '*',
+  origin: process.env.FRONTEND_URL,
   credentials: true,
 }));
 app.use(express.json());
-app.use(express.urlencoded({ extended: true })); // AJOUT CRUCIAL POUR CINETPAY
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(morgan('dev'));
 
