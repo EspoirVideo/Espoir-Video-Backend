@@ -10,12 +10,12 @@ const sendOTP = async (phone, otp) => {
     const isSimulationMode = 
       !env.SMS_API_KEY || 
       env.SMS_API_KEY === 'votre_cle_api' || 
-      (typeof env.SMS_API_KEY === 'string' && env.SMS_API_KEY.trim() === '') || 
+      env.SMS_API_KEY.trim() === '' || 
       env.SMS_API_KEY === 'null';
 
     if (isSimulationMode) {
       console.log('-----------------------------------------');
-      console.log(`[SMS SIMULATION ACTIVE]`);
+      console.log(`[SMS SIMULATION ACTUVE]`);
       console.log(`Destinataire : ${phone}`);
       console.log(`Expediteur (ID) : ${env.SMS_SENDER_ID}`);
       console.log(`Message : Votre code de verification est ${otp}`);
