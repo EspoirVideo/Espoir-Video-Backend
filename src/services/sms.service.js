@@ -1,21 +1,26 @@
 const env = require('../config/env');
 
-const sendSms = async (phoneNumber, message) => {
-  // En developpement ou sans API key, on simule l'envoi dans le terminal
-  if (env.NODE_ENV === 'development' || env.SMS_API_KEY === 'A_REMPLIR_PLUS_TARD') {
-    console.log(`\n[MOCK SMS] Destinataire: ${phoneNumber}`);
-    console.log(`[MOCK SMS] Message: ${message}\n`);
-    return true;
-  }
-
-  // Logique de production pour le fournisseur SMS
+const sendOTP = async (phone, otp) => {
   try {
-    // Le code d'appel a l'API du fournisseur ira ici
-    return true;
+    // Si l'API KEY n'est pas definie, on passe en mode Simulation (Log)
+    if (!process.env.SMS_API_KEY || process.env.SMS_API_KEY === 'votre_cle_api') {
+      console.log('-----------------------------------------');
+      console.log(`[SMS SIMULATION]`);
+      console.log(`Destinataire : ${phone}`);
+      console.log(`Message : Votre code de verification est ${otp}`);
+      console.log('-----------------------------------------');
+      return { success: true, message: 'Simulated' };
+    }
+
+    // Ici, tu integreras plus tard l'appel reel (Twilio, Termii, etc.)
+    // const response = await axios.post('URL_API_SMS', { ... });
+    
+    return { success: true };
   } catch (error) {
-    console.error('[ERREUR SMS] Echec de l\'envoi:', error);
-    throw new Error('Impossible d\'envoyer le SMS');
+    console.error('[SMS SERVICE ERROR]', error.message);
+    // On ne bloque pas le flux en dev/staging meme si le SMS echoue
+    return { success: false };
   }
 };
 
-module.exports = { sendSms };
+module.exports = { sendOTP };
