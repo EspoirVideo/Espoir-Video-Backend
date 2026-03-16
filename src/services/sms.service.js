@@ -2,11 +2,12 @@ const env = require('../config/env');
 
 const sendOTP = async (phone, otp) => {
   try {
-    // Si l'API KEY n'est pas definie, on passe en mode Simulation (Log)
-    if (!process.env.SMS_API_KEY || process.env.SMS_API_KEY === 'votre_cle_api') {
+    // Utilisation stricte des variables validees par Zod
+    if (!env.SMS_API_KEY || env.SMS_API_KEY === 'votre_cle_api') {
       console.log('-----------------------------------------');
       console.log(`[SMS SIMULATION]`);
       console.log(`Destinataire : ${phone}`);
+      console.log(`Expediteur (ID) : ${env.SMS_SENDER_ID}`);
       console.log(`Message : Votre code de verification est ${otp}`);
       console.log('-----------------------------------------');
       return { success: true, message: 'Simulated' };

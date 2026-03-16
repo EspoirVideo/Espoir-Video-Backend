@@ -7,7 +7,7 @@ const envSchema = z.object({
   PORT: z.string().default('5000'),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   DATABASE_URL: z.string().url(),
-  DIRECT_URL: z.string().url(), // Ajouté pour la cohérence Prisma
+  DIRECT_URL: z.string().url(), // Ajoute pour la coherence Prisma
   REDIS_URL: z.string().url(),
   JWT_ACCESS_SECRET: z.string().min(20),
   JWT_REFRESH_SECRET: z.string().min(20),
@@ -23,9 +23,13 @@ const envSchema = z.object({
   CINETPAY_SITE_ID: z.string(),
   CINETPAY_API_KEY: z.string(),
 
+  // SMS (TWILIO, TERMII, ETC.)
+  SMS_API_KEY: z.string().default('votre_cle_api'),
+  SMS_SENDER_ID: z.string().default('votre_cle_api'),
+
   // URLS DE REDIRECTION (Crucial pour le Webhook et le retour client)
   BACKEND_URL: z.string().url().default('http://localhost:5000'),
-  FRONTEND_URL: z.string().url().default('http://localhost:3000'),
+  FRONTEND_URL: z.string().url().default('http://localhost:5173'),
 });
 
 const _env = envSchema.safeParse(process.env);
