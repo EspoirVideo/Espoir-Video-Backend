@@ -104,7 +104,36 @@ const verifyOtp = async (req, res, next) => {
   }
 };
 
+const getMe = async (req, res, next) => {
+  try {
+    // req.user.id est injecte par le middleware protect
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      select: {
+        id: true,
+        phone: true,
+        role: true,
+        createdAt: true
+      }
+    });
+
+    if (!user) {
+      return next(new AppError('Utilisateur introuvable.', 404));
+    }
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        user
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   sendOtp,
-  verifyOtp
+  verifyOtp,
+  getMe
 };
