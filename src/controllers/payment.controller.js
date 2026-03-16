@@ -5,6 +5,9 @@ const crypto = require('crypto');
 
 const prisma = new PrismaClient();
 
+/**
+ * Initialise une transaction de paiement
+ */
 const createPayment = async (req, res, next) => {
   try {
     const { movieId } = req.body;
@@ -68,6 +71,9 @@ const createPayment = async (req, res, next) => {
   }
 };
 
+/**
+ * Gère les notifications de paiement (Réelles ou Simulées)
+ */
 const handleWebhook = async (req, res, next) => {
   try {
     const { cpm_trans_id, cpm_result } = req.body;
@@ -108,4 +114,67 @@ const handleWebhook = async (req, res, next) => {
   }
 };
 
-module.exports = { createPayment, handleWebhook };
+/**
+ * Interface de simulation CinetPay pour les tests Staging/Production sans RCCM
+ */
+const renderMockGate = (req, res) => {
+  const { trx, amount } = req.query;
+  
+  // Page HTML minimale alignée sur la charte graphique Espoir Video
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Espoir Video - Simulateur de Paiement</title>
+        <style>
+            body { background: #0A0A0A; color: white; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+            .card { background: #1A1A1A; padding: 2.5rem; border-radius: 12px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 400px; width: 90%; }
+            h1 { color: #E50914; margin-bottom: 0.5rem; font-size: 1.5rem; }
+            p { color: #A3A3A3; margin-bottom: 2rem; line-height: 1.5; }
+            .amount { font-size: 2rem; font-weight: bold; color: white; display: block; margin-bottom: 2rem; }
+            button { background: #E50914; color: white; border: none; padding: 12px 24px; border-radius: 6px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; width: 100%; }
+            button:hover { background: #B81D24; }
+            .footer { margin-top: 1.5rem; font-size: 0.8rem; color: #525252; }
+        </style>
+    </head>
+    <body>
+        <div class="card">
+            <h1>CinetPay Simulator</h1>
+            <p>Test de paiement sécurisé pour la transaction<br><strong>${trx}</strong></p>
+            <span class="amount">${amount} XOF</span>
+            <button onclick="confirmPay()">CONFIRMER LE PAIEMENT</button>
+            <div class="footer">Mode Sandbox actif - Aucune transaction réelle</div>
+        </div>
+
+        <script>
+            async function confirmPay() {
+                const btn = document.querySelector('button');
+                btn.disabled = true;
+                btn.innerText = 'Traitement...';
+                
+                try {
+                    const response = await fetch('/api/payments/webhook', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: 'cpm_trans_id=${trx}&cpm_result=00'
+                    });
+                    
+                    if (response.ok) {
+                        alert('Paiement simulé avec succès !');
+                        window.location.href = '/payment-success';
+                    }
+                } catch (err) {
+                    alert('Erreur lors de la simulation');
+                    btn.disabled = false;
+                    btn.innerText = 'CONFIRMER LE PAIEMENT';
+                }
+            }
+        </script>
+    </body>
+    </html>
+  `);
+};
+
+module.exports = { createPayment, handleWebhook, renderMockGate };
