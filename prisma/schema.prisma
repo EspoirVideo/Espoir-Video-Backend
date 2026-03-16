@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id        String     @id @default(uuid())
+  phone     String     @unique
+  deviceId  String?
+  role      String     @default("USER")
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  purchases Purchase[]
+  viewings  Viewing[]
+}
+
+model Movie {
+  id          String     @id @default(uuid())
+  title       String
+  description String
+  country     String
+  genre       String
+  price       Int
+  posterUrl   String?
+  videoKey    String?
+  isPublished Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  purchases   Purchase[]
+  viewings    Viewing[]
+}
+
+model Purchase {
+  id            String   @id @default(uuid())
+  userId        String
+  movieId       String
+  transactionId String?  @unique
+  amount        Int
+  status        String   @default("PENDING") // PENDING, COMPLETED, REFUNDED
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user  User  @relation(fields: [userId], references: [id])
+  movie Movie @relation(fields: [movieId], references: [id])
+
+  @@unique([userId, movieId, status])
+}
+
+model Viewing {
+  id               String   @id @default(uuid())
+  userId           String
+  movieId          String
+  viewingStartedAt DateTime @default(now())
+  expiresAt        DateTime
+
+  user  User  @relation(fields: [userId], references: [id])
+  movie Movie @relation(fields: [movieId], references: [id])
+}
