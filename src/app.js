@@ -4,6 +4,7 @@ const cors = require('cors');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 
+const env = require('./config/env'); // IMPORT SECURISÉ AJOUTÉ
 const AppError = require('./utils/AppError');
 const globalErrorHandler = require('./middlewares/errorHandler');
 require('./config/redis'); 
@@ -18,7 +19,7 @@ const app = express();
 // 1. Middlewares Globaux
 app.use(helmet());
 app.use(cors({
-  origin: process.env.FRONTEND_URL,
+  origin: env.FRONTEND_URL, // CORRECTION : UTILISATION DE ZOD
   credentials: true,
 }));
 app.use(express.json());
