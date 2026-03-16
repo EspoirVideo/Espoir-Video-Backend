@@ -2,11 +2,15 @@ const env = require('../config/env');
 
 const sendOTP = async (phone, otp) => {
   try {
-    // Condition de simulation securisee (gere les cles vides, nulles ou par defaut)
+    // 1. SONDE DE DÉBOGAGE (S'affichera obligatoirement)
+    console.log(`[DEBUG SMS] Appel declenche pour le numero : ${phone}`);
+    console.log(`[DEBUG SMS] Valeur de env.SMS_API_KEY lue par le serveur : "${env.SMS_API_KEY}"`);
+
+    // 2. Condition de simulation elargie (securise les espaces ou mots cles parasites)
     const isSimulationMode = 
       !env.SMS_API_KEY || 
       env.SMS_API_KEY === 'votre_cle_api' || 
-      env.SMS_API_KEY.trim() === '' || 
+      (typeof env.SMS_API_KEY === 'string' && env.SMS_API_KEY.trim() === '') || 
       env.SMS_API_KEY === 'null';
 
     if (isSimulationMode) {
@@ -19,13 +23,13 @@ const sendOTP = async (phone, otp) => {
       return { success: true, message: 'Simulated' };
     }
 
-    // Ici, tu integreras plus tard l'appel reel (Twilio, Termii, etc.)
+    // 3. Cas où une vraie clé est détectée (S'affichera si on saute la simulation)
+    console.log('[DEBUG SMS] Vraie cle API detectee. Le mode simulation est ignore.');
     // const response = await axios.post('URL_API_SMS', { ... });
     
     return { success: true };
   } catch (error) {
     console.error('[SMS SERVICE ERROR]', error.message);
-    // On ne bloque pas le flux en dev/staging meme si le SMS echoue
     return { success: false };
   }
 };
