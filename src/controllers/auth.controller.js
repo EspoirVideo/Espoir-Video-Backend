@@ -11,24 +11,37 @@ const sendOtp = async (req, res, next) => {
   try {
     const { phone } = req.body;
     
+    console.log('=============================================');
+    console.log(`[CONTROLEUR] 1. Requete recue pour : ${phone}`);
+    
     if (!phone) {
       return next(new AppError('Le numero de telephone est requis.', 400));
     }
 
-    // Generation d'un code a 4 chiffres (1000 a 9999)
+    // Generation du code a 4 chiffres (1000 a 9999)
     const otp = Math.floor(1000 + Math.random() * 9000).toString();
+    console.log(`[CONTROLEUR] 2. OTP Genere : ${otp}`);
 
     // Stockage dans Redis avec expiration stricte a 300 secondes (5 minutes)
     await redisClient.set(`otp:${phone}`, otp, 'EX', 300);
+    console.log(`[CONTROLEUR] 3. OTP Sauvegarde dans Redis avec succes.`);
 
-    // Envoi du code via le service
-    await sendOTP(phone, otp);
+    // Appel du service SMS et capture du resultat reel
+    console.log(`[CONTROLEUR] 4. Appel du service sendOTP...`);
+    const smsResult = await sendOTP(phone, otp);
+    console.log(`[CONTROLEUR] 5. Reponse du service SMS :`, smsResult);
+
+    // On ne renvoie un succes au frontend QUE si le service a vraiment fonctionne
+    if (!smsResult.success) {
+      return next(new AppError('Erreur critique dans le service SMS.', 500));
+    }
 
     res.status(200).json({
       status: 'success',
       message: 'Code OTP envoye avec succes'
     });
   } catch (error) {
+    console.error('[CONTROLEUR CRASH]', error);
     next(error);
   }
 };
